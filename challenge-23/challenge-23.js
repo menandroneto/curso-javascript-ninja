@@ -23,3 +23,70 @@ multiplicação (x), então no input deve aparecer "1+2x".
 input;
 - Ao pressionar o botão "CE", o input deve ficar zerado.
 */
+(function(w, d){
+    var $inputDisplay = d.querySelector('[data-js="display"]');
+    var $buttonNumber = d.querySelectorAll('[data-js="buttonNumber"]');    
+    var $buttonCE = d.querySelector('[data-js="buttonCE"]');
+    var $buttonOperations = d.querySelectorAll('[data-js="buttonOperation"]');
+    var $buttonEqual = d.querySelector('[data-js="buttonEqual"]');
+
+    // Test
+    // console.log($buttonEqual);
+
+    Array.prototype.forEach.call($buttonNumber, function(btn){
+        btn.addEventListener('click', handleClickNumber, false);
+    });
+    Array.prototype.forEach.call($buttonOperations, function(btn){
+        btn.addEventListener('click', handleClickOperation, false);
+    });
+    
+    $buttonCE.addEventListener('click', handleClickCE, false);
+    $buttonEqual.addEventListener('click', handleClickEqual, false);
+    
+    function handleClickNumber(){
+        if ($inputDisplay.value === '0')
+            $inputDisplay.value = this.value
+        else
+            $inputDisplay.value += this.value;
+    }
+
+    function handleClickCE(){
+        $inputDisplay.value = 0;
+    }
+
+    function handleClickOperation(){
+        $inputDisplay.value = removeLastOperator($inputDisplay.value);
+        $inputDisplay.value += this.value;
+    }
+
+    function removeLastOperator(content){
+        if (hasOperatrOnEnd(content)) 
+            return content.slice(0, -1);
+        return content;
+    }
+
+    function hasOperatrOnEnd(content){
+        var operations = ['+', '-', 'x', '÷'];
+        var lastItem = content.split('').pop();
+        return operations.indexOf(lastItem) > -1;
+    }
+
+    function handleClickEqual(){
+        $inputDisplay.value = removeLastOperator($inputDisplay.value);
+        var allValues = $inputDisplay.value.match(/\d+[+x÷-]?/g);
+        var result = allValues.reduce(function(acc, item){
+            var first = acc.slice(0, -1);
+            var operator = acc.split('').pop();
+            var other = removeLastOperator(item);
+            var lastOp = hasOperatrOnEnd(item) ? item.split('').pop() : '';
+            console.log(first, operator, other);
+            switch (operator) {
+                case '+': return (Number(first) + Number(other)) + lastOp;
+                case '-': return (Number(first) - Number(other)) + lastOp;
+                case 'x': return (Number(first) * Number(other)) + lastOp;
+                case '÷': return (Number(first) / Number(other)) + lastOp;
+            }
+        });
+        $inputDisplay.value = result;
+    }
+})(window, document);
